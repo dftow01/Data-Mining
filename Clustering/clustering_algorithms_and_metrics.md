@@ -125,15 +125,15 @@ Measures how similar an object is to its own cluster compared to other clusters.
 
 For a data point \( i \):
 
-- \( a(i) \): Average distance between \( i \) and all other points in the same cluster.
-- \( b(i) \): Minimum average distance from \( i \) to points in a different cluster.
+- ```math \( a(i) \) ```: Average distance between ```math \( i \)``` and all other points in the same cluster.
+- ```math\( b(i) \) ```: Minimum average distance from ```math\( i \)``` to points in a different cluster.
 
 
 ```math
 s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}
 ```
 
-- \( s(i) \) ranges from -1 to 1.
+- ```math\( s(i) \)``` ranges from -1 to 1.
   - Close to 1: The data point is well matched to its own cluster.
   - Close to 0: The data point is on or very close to the decision boundary between two neighboring clusters.
   - Negative values: The data point might have been assigned to the wrong cluster.
@@ -160,8 +160,8 @@ Evaluates the average similarity between each cluster and its most similar one, 
 DBI = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \left( \frac{\sigma_i + \sigma_j}{d_{ij}} \right)
 ```
 
-- \( \sigma_i \): Average distance of all points in cluster \( i \) to its centroid.
-- \( d_{ij} \): Distance between centroids of clusters \( i \) and \( j \).
+- ```math\( \sigma_i \)```: Average distance of all points in cluster ```math\( i \)``` to its centroid.
+- ```math\( d_{ij} \)```: Distance between centroids of clusters ```math\( i \)``` and ```math\( j \)```.
 
 - Lower DBI values indicate better clustering.
 
@@ -187,8 +187,8 @@ Measures the similarity between the clustering assignments and the ground truth 
 NMI(U, V) = \frac{2 \cdot I(U; V)}{H(U) + H(V)}
 ```
 
-- \( I(U; V) \): Mutual information between the cluster assignments \( U \) and the ground truth labels \( V \).
-- \( H(U) \) and \( H(V) \): Entropies of \( U \) and \( V \), respectively.
+- ```math\( I(U; V) \)```: Mutual information between the cluster assignments ```math\( U \)``` and the ground truth labels ```math\( V \)```.
+- ```math\( H(U) \)``` and ```math\( H(V) \)```: Entropies of ```math\( U \)``` and ```math\( V \)```, respectively.
 
 - NMI ranges from 0 (no mutual information) to 1 (perfect correlation).
 
