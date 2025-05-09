@@ -128,9 +128,10 @@ For a data point \( i \):
 - \( a(i) \): Average distance between \( i \) and all other points in the same cluster.
 - \( b(i) \): Minimum average distance from \( i \) to points in a different cluster.
 
-\[
+
+```math
 s(i) = \frac{b(i) - a(i)}{\max(a(i), b(i))}
-\]
+```
 
 - \( s(i) \) ranges from -1 to 1.
   - Close to 1: The data point is well matched to its own cluster.
@@ -155,9 +156,9 @@ Evaluates the average similarity between each cluster and its most similar one, 
 
 **Formula**:
 
-\[
+```math
 DBI = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \left( \frac{\sigma_i + \sigma_j}{d_{ij}} \right)
-\]
+```
 
 - \( \sigma_i \): Average distance of all points in cluster \( i \) to its centroid.
 - \( d_{ij} \): Distance between centroids of clusters \( i \) and \( j \).
@@ -182,9 +183,9 @@ Measures the similarity between the clustering assignments and the ground truth 
 
 **Formula**:
 
-\[
+```math
 NMI(U, V) = \frac{2 \cdot I(U; V)}{H(U) + H(V)}
-\]
+```
 
 - \( I(U; V) \): Mutual information between the cluster assignments \( U \) and the ground truth labels \( V \).
 - \( H(U) \) and \( H(V) \): Entropies of \( U \) and \( V \), respectively.
@@ -222,6 +223,3 @@ NMI(U, V) = \frac{2 \cdot I(U; V)}{H(U) + H(V)}
 ---
 
 ## 📚 References
-
-- [Introduction to Data Science - Harvard University](https://rafalab.dfci.harvard.edu/dsbook/clustering.html)
-- [Density-based Clustering in Spatial Databases - Harvard University](https://lweb.cfa.harvard.edu/~kurtz/CSNA/1998/Density-based_Clustering_in_Spatial_Databases_-_the_Algorithm_Gd.html)
