@@ -59,6 +59,12 @@ This method **does not guarantee the optimal solution**, but provides a valid st
 - Supply = 20, Demand = 20 → Allocate **20**
 - Done. All supply and demand met.
 
+### Important Rule
+- In NWCM, you must fully exhaust the supply of one supplier (row) before moving to the next.
+- This ensures that:
+  - You go from left to right within a row until the supply is used up.
+  - Only then do you move down to the next supplier.
+
 ---
 
 ## ✅ Final Allocation Table
