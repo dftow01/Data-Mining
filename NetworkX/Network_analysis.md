@@ -1,4 +1,5 @@
 # Network Analysis Techniques
+Friendly reminder: Take a deep breath before reading the documentation and finish it in one shot 🙃
 
 ## Shortest Path in Network Analysis
 ### What is Shortest Path in a Network?
@@ -230,7 +231,7 @@ plt.show()
    - Y-axis: Percentage of all node pairs
    - Shows the "small world" effect if most pairs have short paths
 
-**Real-world insight:** If 80% of user pairs are within 3 hops, it demonstrates the "small world" phenomenon where everyone is closely connected despite the large network size.
+**Use case:** If 80% of user pairs are within 3 hops, it demonstrates the "small world" phenomenon where everyone is closely connected despite the large network size.
 
 ---
 
@@ -290,7 +291,7 @@ print(f"Minimum degree: {min(degrees)}")
 - **Degree Distribution**: Shows how friendship connections are distributed across users
 - **Degree Statistics**: Reveals network characteristics like popular vs. average users
 
-**Real-world insight**: A low density with high degree variation suggests some users are extremely popular while most have few connections.
+**Use case**: A low density with high degree variation suggests some users are extremely popular while most have few connections.
 
 ---
 
@@ -361,7 +362,7 @@ for i, (node, centrality) in enumerate(sorted(deg_centrality.items(),
 - **Color Coding**: Red nodes highlight the most connected users
 - **Network Position**: Shows where popular users are located in the network structure
 
-**Facebook context**: Popular users (large red nodes) often serve as information hubs and community connectors.
+**Facebook Ego Network context**: Popular users (large red nodes) often serve as information hubs and community connectors.
 
 ---
 
@@ -432,7 +433,7 @@ plt.show()
    - `rotation=45` tilts labels to prevent overlap
    - `plt.legend()` shows which color represents which centrality type
 
-**Key insights from comparison:**
+**Insights from comparison:**
 - **High Degree ≠ High Betweenness**: Popular users aren't always bridges between communities
 - **Different Roles**: Some users are popular within their group, others connect different groups
 - **Strategic Importance**: High betweenness nodes are critical for information flow across the network
