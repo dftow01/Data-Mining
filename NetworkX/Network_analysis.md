@@ -234,10 +234,462 @@ plt.show()
 
 ---
 
-## Key Takeaways
+### 8. Calculate graph density, number of connected components, degree of centrality and plot the distribution
 
-Understanding these metrics helps you:
+```python
+# Calculate basic network metrics
+density = nx.density(G1)
+num_components = nx.number_connected_components(G1)
+
+print(f"Graph density: {density:.3f}")
+print(f"Number of connected components: {num_components}")
+
+# Analyze degree distribution
+degrees = [d for n, d in G1.degree()]
+degree_counts = Counter(degrees)
+
+# Plot degree centrality distribution
+plt.figure(figsize=(15, 8))
+plt.hist(deg_centrality.values(), bins=25, color="skyblue")
+plt.xticks(ticks=[0, 0.025, 0.05, 0.1, 0.15, 0.2]) 
+plt.title("Degree Centrality Histogram", fontdict={"size": 35}, loc="center")
+plt.xlabel("Degree Centrality", fontdict={"size": 20})
+plt.ylabel("Counts", fontdict={"size": 20})
+plt.show()
+
+# Print degree statistics
+print(f"Average degree: {np.mean(degrees):.2f}")
+print(f"Degree standard deviation: {np.std(degrees):.2f}")
+print(f"Maximum degree: {max(degrees)}")
+print(f"Minimum degree: {min(degrees)}")
+```
+
+**How the code works:**
+
+1. **Calculate Network Metrics**:
+   - `nx.density(G1)` calculates how many edges exist compared to maximum possible edges
+   - `nx.number_connected_components(G1)` counts separate network clusters
+
+2. **Extract Degree Data**:
+   - `G1.degree()` returns pairs of (node, degree) for each node
+   - List comprehension `[d for n, d in G1.degree()]` extracts only the degree values
+   - `Counter(degrees)` counts frequency of each degree value
+
+3. **Create Histogram**:
+   - `plt.hist(deg_centrality.values(), bins=25)` creates histogram with 25 bins
+   - `deg_centrality.values()` gets all degree centrality scores (0 to 1 range)
+   - Custom x-axis ticks show specific centrality values for better readability
+
+4. **Calculate Statistics**:
+   - `np.mean(degrees)`, `np.std(degrees)` calculate average and spread
+   - `max(degrees)`, `min(degrees)` find most and least connected users
+
+**What this analysis reveals:**
+- **Graph Density**: How interconnected the network is (ranges from 0 to 1)
+- **Connected Components**: Number of separate network clusters
+- **Degree Distribution**: Shows how friendship connections are distributed across users
+- **Degree Statistics**: Reveals network characteristics like popular vs. average users
+
+**Real-world insight**: A low density with high degree variation suggests some users are extremely popular while most have few connections.
+
+---
+
+### 9. Plot the users with highest degree centralities from the size of their nodes
+
+```python
+plt.figure(figsize=(12, 8))
+
+# Identify top 10 users by degree centrality
+top_degree_nodes = [node for node, _ in sorted(deg_centrality.items(),
+                                              key=lambda x: x[1], reverse=True)[:10]]
+
+# Size nodes proportional to their degree centrality
+node_sizes = [3000 * deg_centrality[node] for node in G1.nodes()]
+node_colors = ['red' if node in top_degree_nodes else 'lightblue' for node in G1.nodes()]
+
+# Create consistent layout
+pos = nx.spring_layout(G1, k=1, iterations=50, seed=42)
+nx.draw(G1, pos,
+        node_color=node_colors,
+        node_size=node_sizes,
+        with_labels=True,
+        font_size=8,
+        font_weight='bold',
+        edge_color='gray',
+        alpha=0.7)
+
+plt.title("Network with Node Sizes Proportional to Degree Centrality\n(Red nodes = Top 10 highest degree centrality)",
+          fontsize=14, fontweight='bold')
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+
+# Display top 10 users with their metrics
+print("Top 10 nodes by degree centrality:")
+for i, (node, centrality) in enumerate(sorted(deg_centrality.items(),
+                                             key=lambda x: x[1], reverse=True)[:10], 1):
+    print(f"{i}. Node {node}: {centrality:.3f} (degree: {G1.degree(node)})")
+```
+
+**How the code works:**
+
+1. **Find Top Nodes**:
+   - `sorted(deg_centrality.items(), key=lambda x: x[1], reverse=True)` sorts nodes by centrality value
+   - `[:10]` takes the top 10 highest centrality nodes
+   - List comprehension extracts just the node IDs
+
+2. **Calculate Visual Properties**:
+   - `node_sizes = [3000 * deg_centrality[node] for node in G1.nodes()]` makes node size proportional to centrality
+   - Multiplier `3000` scales sizes for visibility
+   - `node_colors` list assigns red to top nodes, light blue to others
+
+3. **Create Network Layout**:
+   - `nx.spring_layout()` positions nodes using force-directed algorithm
+   - `k=1` controls node spacing, `iterations=50` improves layout quality
+   - `seed=42` ensures reproducible layout positions
+
+4. **Draw Network**:
+   - `nx.draw()` creates the visualization with all specified properties
+   - `with_labels=True` shows node IDs on the graph
+   - `alpha=0.7` makes nodes slightly transparent
+
+5. **Display Rankings**:
+   - Loop through sorted centrality values to show top 10 with their actual degree counts
+
+**Visualization benefits:**
+- **Node Size**: Larger nodes = more connections (higher degree centrality)
+- **Color Coding**: Red nodes highlight the most connected users
+- **Network Position**: Shows where popular users are located in the network structure
+
+**Facebook context**: Popular users (large red nodes) often serve as information hubs and community connectors.
+
+---
+
+### 10. Calculate the betweenness centralities for the 8 highest degree centralities nodes and show their centrality values
+
+```python
+# Get top 8 nodes by degree centrality
+top_8_degree_nodes = [node for node, _ in sorted(deg_centrality.items(),
+                                                 key=lambda x: x[1], reverse=True)[:8]]
+
+print("Betweenness centralities for the 8 highest degree centrality nodes:")
+betweenness_for_top_degree = []
+for i, node in enumerate(top_8_degree_nodes, 1):
+    bet_cent = betweenness_centrality[node]
+    deg_cent = deg_centrality[node]
+    betweenness_for_top_degree.append((node, bet_cent, deg_cent))
+    print(f"{i}. Node {node}:")
+    print(f"   Degree Centrality: {deg_cent:.3f}")
+    print(f"   Betweenness Centrality: {bet_cent:.3f}")
+
+# Create comparison bar chart
+plt.figure(figsize=(10, 6))
+nodes = [item[0] for item in betweenness_for_top_degree]
+bet_values = [item[1] for item in betweenness_for_top_degree]
+deg_values = [item[2] for item in betweenness_for_top_degree]
+
+x = np.arange(len(nodes))
+width = 0.35
+
+plt.bar(x - width/2, deg_values, width, label='Degree Centrality', alpha=0.7, color='skyblue')
+plt.bar(x + width/2, bet_values, width, label='Betweenness Centrality', alpha=0.7, color='orange')
+
+plt.xlabel('Node')
+plt.ylabel('Centrality Value')
+plt.title('Comparison of Degree and Betweenness Centralities\nfor Top 8 Degree Centrality Nodes')
+plt.xticks(x, [f'Node {node}' for node in nodes], rotation=45)
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+**How the code works:**
+
+1. **Get Top Degree Nodes**:
+   - Same sorting logic as before, but takes only top 8 nodes
+   - `[:8]` slices the list to get first 8 highest degree centrality nodes
+
+2. **Extract Both Centrality Values**:
+   - Loop through each top degree node with `enumerate(top_8_degree_nodes, 1)`
+   - `enumerate(..., 1)` provides index starting from 1 for numbering
+   - Look up both centrality values: `betweenness_centrality[node]` and `deg_centrality[node]`
+   - Store as tuples: `(node_id, betweenness_value, degree_value)`
+
+3. **Prepare Data for Plotting**:
+   - `nodes = [item[0] for item in betweenness_for_top_degree]` extracts node IDs
+   - `bet_values = [item[1] for item in ...]` extracts betweenness centrality values
+   - `deg_values = [item[2] for item in ...]` extracts degree centrality values
+
+4. **Create Side-by-Side Bar Chart**:
+   - `x = np.arange(len(nodes))` creates x-axis positions (0, 1, 2, ...)
+   - `width = 0.35` sets bar width
+   - `x - width/2` and `x + width/2` positions bars side by side
+   - Two `plt.bar()` calls create bars for each centrality type
+
+5. **Format Chart**:
+   - `plt.xticks(x, [f'Node {node}' for node in nodes], rotation=45)` labels x-axis with node names
+   - `rotation=45` tilts labels to prevent overlap
+   - `plt.legend()` shows which color represents which centrality type
+
+**Key insights from comparison:**
+- **High Degree ≠ High Betweenness**: Popular users aren't always bridges between communities
+- **Different Roles**: Some users are popular within their group, others connect different groups
+- **Strategic Importance**: High betweenness nodes are critical for information flow across the network
+
+---
+
+### 11. Plot nodes with highest betweenness centralities and where they are located in the network
+
+```python
+# Find top 8 users by betweenness centrality
+top_betweenness_nodes = [node for node, _ in sorted(betweenness_centrality.items(),
+                                                   key=lambda x: x[1], reverse=True)[:8]]
+
+plt.figure(figsize=(12, 8))
+
+# Normalize node sizes by betweenness centrality
+max_betweenness = max(betweenness_centrality.values())
+node_sizes = [3000 * (betweenness_centrality[node] / max_betweenness) for node in G1.nodes()]
+node_colors = ['red' if node in top_betweenness_nodes else 'white' for node in G1.nodes()]
+
+nx.draw(G1, pos,
+        node_color=node_colors,
+        node_size=node_sizes,
+        with_labels=True,
+        font_size=8,
+        font_weight='bold',
+        edge_color='gray',
+        alpha=0.7)
+
+plt.title("Network with Node Sizes Proportional to Betweenness Centrality\n(Red nodes = Top 8 highest betweenness centrality)",
+          fontsize=14, fontweight='bold')
+plt.axis('off')
+plt.tight_layout()
+plt.show()
+
+print("Top 8 nodes by betweenness centrality:")
+for i, (node, centrality) in enumerate(sorted(betweenness_centrality.items(),
+                                             key=lambda x: x[1], reverse=True)[:8], 1):
+    print(f"{i}. Node {node}: {centrality:.3f}")
+```
+
+**How the code works:**
+
+1. **Find Top Betweenness Nodes**:
+   - `sorted(betweenness_centrality.items(), key=lambda x: x[1], reverse=True)` sorts by betweenness centrality
+   - `[:8]` takes top 8 nodes with highest betweenness centrality values
+
+2. **Normalize Node Sizes**:
+   - `max_betweenness = max(betweenness_centrality.values())` finds the highest betweenness centrality value
+   - `betweenness_centrality[node] / max_betweenness` normalizes each value to 0-1 range
+   - Multiply by `3000` to scale for visibility in the graph
+   - This ensures the highest betweenness node gets maximum size
+
+3. **Color Coding**:
+   - `node_colors` list assigns red to top 8 betweenness nodes, white to all others
+   - Red nodes will stand out as the key "bridge" users in the network
+
+4. **Use Previous Layout**:
+   - `pos` variable from previous visualization ensures consistent node positioning
+   - This allows easy comparison between degree and betweenness centrality visualizations
+
+5. **Display Rankings**:
+   - Print top 8 nodes with their exact betweenness centrality scores
+   - Shows which users act as the most important bridges in the network
+
+**Strategic importance of bridge users:**
+- **Information Brokers**: Control flow of information between different groups
+- **Network Vulnerability**: Removing these users could fragment the network
+- **Influence Potential**: Can introduce people from different communities to each other
+
+---
+
+### 12. Calculate the nodes with highest closeness centralities
+
+```python
+# Identify users with highest closeness centrality
+top_closeness_nodes = sorted(closeness_centrality.items(), key=lambda x: x[1], reverse=True)
+
+print("Top 10 nodes by closeness centrality:")
+for i, (node, centrality) in enumerate(top_closeness_nodes[:10], 1):
+    print(f"{i}. Node {node}: {centrality:.3f}")
+```
+
+**How the code works:**
+
+1. **Sort by Closeness Centrality**:
+   - `closeness_centrality.items()` returns pairs of (node, centrality_value)
+   - `sorted(..., key=lambda x: x[1], reverse=True)` sorts by centrality value (x[1])
+   - `reverse=True` puts highest values first
+
+2. **Display Top 10**:
+   - `[:10]` slices to get top 10 nodes
+   - `enumerate(..., 1)` provides numbering starting from 1
+   - Loop prints each node with its closeness centrality score
+
+**What closeness centrality tells us:**
+- Higher values mean shorter average distances to all other nodes
+- These users can spread information most efficiently across the network
+
+**What closeness centrality reveals:**
+- **Information Spreaders**: Users who can quickly reach everyone in the network
+- **Central Position**: Users located at the "heart" of the network
+- **Communication Efficiency**: Shortest average path to all other users
+
+---
+
+### 13. Calculate the average distance of any particular node (user_number) to any other node. Plot the distribution of the closeness centralities
+
+```python
+# Calculate distances from a specific user (e.g., user 0)
+user_number = 0
+distances_from_user = dict(nx.shortest_path_length(G1, source=user_number))
+avg_distance_from_user = np.mean(list(distances_from_user.values()))
+
+print(f"Average distance from node {user_number} to all other nodes: {avg_distance_from_user:.3f}")
+
+# Plot closeness centrality distribution
+plt.figure(figsize=(15, 12))
+closeness_values = list(closeness_centrality.values())
+
+plt.hist(closeness_values, bins=20, alpha=0.7, color='green', edgecolor='black')
+plt.xlabel('Closeness Centrality')
+plt.ylabel('Frequency')
+plt.title('Distribution of Closeness Centralities')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+print(f"Mean closeness centrality: {np.mean(closeness_values):.3f}")
+print(f"Standard deviation: {np.std(closeness_values):.3f}")
+```
+
+**How the code works:**
+
+1. **Calculate Distances from Specific User**:
+   - `nx.shortest_path_length(G1, source=user_number)` calculates shortest paths from user 0 to all others
+   - Returns a dictionary: `{target_node: distance}` for all reachable nodes
+   - `dict()` converts the result to a regular dictionary
+   - `np.mean(list(distances_from_user.values()))` calculates average distance
+
+2. **Extract All Closeness Values**:
+   - `closeness_centrality.values()` gets all centrality scores
+   - `list()` converts to list for easier manipulation
+
+3. **Create Distribution Histogram**:
+   - `bins=20` divides the range of closeness values into 20 intervals
+   - `alpha=0.7` makes bars slightly transparent
+   - `edgecolor='black'` adds black borders to bars for clarity
+
+4. **Calculate Summary Statistics**:
+   - `np.mean(closeness_values)` shows average closeness centrality
+   - `np.std(closeness_values)` shows how spread out the values are
+
+**What this analysis reveals:**
+- **Individual Perspective**: How well-positioned user 0 is in the network
+- **Overall Distribution**: Shows variation in how "central" different users are
+- **Network Compactness**: Lower average distances indicate a more connected network
+
+**Analysis benefits:**
+- **Individual Perspective**: Shows how well-positioned a specific user is
+- **Network Efficiency**: Average distance reveals overall network compactness
+- **Distribution Pattern**: Shows variation in user positions within the network
+
+---
+
+### 14. Calculate the nodes with the highest eigenvector centrality. Identify the nodes
+
+```python
+# Find users with highest eigenvector centrality
+top_eigen_nodes = sorted(eigen_vector.items(), key=lambda x: x[1], reverse=True)
+
+print("Top 10 nodes by eigenvector centrality:")
+for i, (node, centrality) in enumerate(top_eigen_nodes[:10], 1):
+    print(f"{i}. Node {node}: {centrality:.3f}")
+
+print(f"\nThe node with highest eigenvector centrality is Node {top_eigen_nodes[0][0]} with value {top_eigen_nodes[0][1]:.3f}")
+```
+
+**How the code works:**
+
+1. **Sort by Eigenvector Centrality**:
+   - `eigen_vector.items()` returns (node, centrality_value) pairs
+   - `sorted(..., key=lambda x: x[1], reverse=True)` sorts by centrality value in descending order
+   - Result is a list of tuples ordered from highest to lowest centrality
+
+2. **Display Top 10 Users**:
+   - `[:10]` gets first 10 items (highest centrality values)
+   - `enumerate(..., 1)` provides ranking numbers starting from 1
+   - Loop prints each node with its eigenvector centrality score
+
+3. **Identify Top User**:
+   - `top_eigen_nodes[0][0]` gets the node ID of the highest-ranking user
+   - `top_eigen_nodes[0][1]` gets the centrality value of that user
+   - This identifies the single most influential user in the network
+
+**What eigenvector centrality reveals:**
+- Users connected to other highly-connected users score higher
+- It's not just about quantity of connections, but quality of connections
+- The top user has the most influence through their network position
+
+**Eigenvector centrality significance:**
+- **Quality over Quantity**: Not just about having many friends, but having influential friends
+- **Recursive Influence**: Users connected to other highly-connected users score higher
+- **Elite Networks**: Identifies users in the "inner circle" of influential people
+
+---
+
+### 15. Plot the distribution of eigenvector centralities. Identify the eigenvector centralities of nodes based on their size
+
+```python
+plt.figure(figsize=(15, 12))
+eigen_values = list(eigen_vector.values())
+
+plt.hist(eigen_values, bins=20, alpha=0.7, color='purple', edgecolor='black')
+plt.xlabel('Eigenvector Centrality')
+plt.ylabel('Frequency')
+plt.title('Distribution of Eigenvector Centralities')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+```
+
+**How the code works:**
+
+1. **Extract Eigenvector Values**:
+   - `eigen_vector.values()` gets all eigenvector centrality scores from the dictionary
+   - `list()` converts to a list for plotting and analysis
+
+2. **Create Distribution Histogram**:
+   - `plt.hist(eigen_values, bins=20)` creates histogram with 20 bins
+   - `bins=20` divides the range of values into 20 equal intervals
+   - `alpha=0.7` makes bars semi-transparent for better visual appeal
+   - `color='purple'` sets the bar color to distinguish from other centrality plots
+   - `edgecolor='black'` adds black borders around bars for clarity
+
+3. **Format the Plot**:
+   - X-axis shows eigenvector centrality values (typically 0 to 1)
+   - Y-axis shows frequency (how many users have each centrality range)
+   - Grid helps read exact values from the plot
+
+**What the distribution shows:**
+- Most users typically have low eigenvector centrality (left side of histogram)
+- Few users have high eigenvector centrality (right side of histogram)
+- This reveals the network's influence hierarchy - most users are regular, few are highly influential
+- A right-skewed distribution is common, showing power-law-like influence distribution
+
+**Distribution insights:**
+- **Power Law Pattern**: Usually shows few highly influential users and many with low influence
+- **Elite vs. Regular Users**: Clear distinction between influential and regular users
+- **Network Hierarchy**: Reveals the hierarchical structure of influence in the network
+
+---
+
+## Conclusion: 
 - **Identify influential users** (high centrality scores)
 - **Understand information flow** (shortest paths and network structure)
 - **Assess network resilience** (connectivity and critical bridges)
 - **Optimize content distribution** (leverage central nodes for maximum reach)
+- **Detect community structures** (through betweenness centrality patterns)
+- **Measure network efficiency** (via average path lengths and closeness centrality)
